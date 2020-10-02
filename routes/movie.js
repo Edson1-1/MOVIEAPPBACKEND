@@ -53,16 +53,22 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) =>{
 
     const id = req.params.id;
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).send("invalid id");
+}
     
     Movie.findById(id)
-        .then( movie => res.status(200).json(movie))
-        .catch( err => res.status(400).send(err));
+        .then( movie => res.status(200).send(movie))
+        .catch( err => res.status(400).send("error is: "+err));
 
 });
 
 router.put('/update/:id', verify, async (req, res) => {
         try{    
             const id = req.params.id;
+            if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+                    return res.status(400).send("invalid id");
+            }
             let imageDirectory;
             if(req.files){
                 const movie = await Movie.findById(id);
@@ -110,6 +116,9 @@ router.put('/update/:id', verify, async (req, res) => {
 
 router.delete('/delete/:id', verify, async(req, res) => {
     const id = req.params.id;
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).send("invalid id");
+}
     try{
     const movie = await Movie.findById(id);
     const imageDirectory = movie.img;
