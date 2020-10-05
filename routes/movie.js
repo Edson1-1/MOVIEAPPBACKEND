@@ -117,7 +117,6 @@ router.put('/update/:id', verify, async (req, res) => {
             const updates = Object.assign(req.body, {img: imageDirectory});
             const option = { new: true};
             const updatedMovie = await Movie.findByIdAndUpdate(id, updates, option);
-            console.log(updatedMovie);
             // res.status(200).send(updatedMovie);
             res.status(200).send("movie succesfully updated");
         } 

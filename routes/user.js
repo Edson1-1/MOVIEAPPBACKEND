@@ -19,12 +19,6 @@ router.post('/register', async(req, res) => {
     // hashingPassword
     const saltRounds = await bcrypt.genSalt(parseInt(process.env.SALT, 10 ));
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds); 
-   
-    // let hashedPassword;
-    // hashPassword(req.body.password).then((result) => {
-    //    const hashedPassword = await hashPassword(req.body.password);
-    // });
-
     
     //Adding User
     const user = new User({
@@ -35,7 +29,6 @@ router.post('/register', async(req, res) => {
 
     try{ 
         const savedUser = await user.save();
-        console.log("New user added. User is :" + savedUser.name);
         res.status(200).send({user: savedUser.id});
     }catch(err){
         res.status(400).send(err);
@@ -54,13 +47,11 @@ router.post('/login', async(req, res) => {
 
      const user = await User.findOne({ email: req.body.email});
      if(!user) {
-        console.log("email is wrong");
          return res.status(400).send("Email or Password is wrong!");}
 
      //CorrectPassword
      validPassword = await bcrypt.compare(req.body.password, user.password)
      if(!validPassword) {
-        console.log("password is wrong");
         return res.status(400).send("Email or Password is wrong!");}
         
      
