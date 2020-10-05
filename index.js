@@ -27,8 +27,14 @@ app.use('/api/sampleroute', sampleRoute);
 app.use('/api/movie', movieRoute);
 
 //Database Connection
-mongoose.connect(process.env.DATABASE, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false}, () => console.log("connected to database"));
+mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false}, () => console.log("connected to database"));
 
 //Server connection
-const PORT = process.env.PORT | 5000;
+const PORT = process.env.PORT || 5000;
+
+
+
+if(process.env.NODE_ENV === 'production'){
+    app.use(express.static('client/build'))
+}
 app.listen(PORT, () => console.log(`Server Running at port: ${PORT}`)); 

@@ -1,0 +1,13 @@
+h2 {
+    padding-left: 1rem;
+    padding-top: 1rem;
+}
+
+.jumbotron-margin{
+    margin: 2rem;
+}
+
+.button-size {
+    width : 11em;
+    margin-bottom: 1rem ;
+}
