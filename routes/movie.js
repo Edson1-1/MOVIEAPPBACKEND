@@ -17,7 +17,7 @@ router.post('/upload', verify, async (req, res) => {
 
     //imageUpload
         const image = req.files.image;
-        const imageName = image.name;
+        const imageName = req.user._id+Date.now()+image.name;
         const imageDirectory = '/public/'+imageName;
         image.mv('.'+imageDirectory, (err) => {
             if(err) return res.status(500).send(err);
@@ -42,15 +42,24 @@ router.post('/upload', verify, async (req, res) => {
     
 });
 
-router.get('/', (req, res) => {
+router.get('/', verify, (req, res) => {
     
     Movie.find()
-        .then(movie => res.json(movie))
+        .then(movie => {
+            let userMovie=[];
+            for( let i =0; i< movie.length; i++){
+                if(movie[i].owner === req.user._id){
+                    userMovie.push(movie[i]);
+                }
+            }
+            
+            res.status(200).send(userMovie);
+        })
         .catch(err => res.status(400).send(err));
 
 })
 
-router.get('/:id', (req, res) =>{
+router.get('/:id', verify, (req, res) =>{
 
     const id = req.params.id;
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -73,26 +82,27 @@ router.put('/update/:id', verify, async (req, res) => {
             if(req.files){
                 const movie = await Movie.findById(id);
                 if(movie.img !== ''){
-                const path = '.'+movie.img;
-                fs.unlink(path, (err) => {
-                    if (err) {
-                      console.error(err)
-                      return res.status(400).send(err);
-                    }
-                })
-                    
-                Movie.findByIdAndUpdate(id, {img : ''})
-                .then( () => {
-                    console.log("image directory reset");
-                })
-                .catch(() => {
-                    console.log("Error is: "+err);
-                })}
+                    const path = '.'+movie.img;
+                    fs.unlink(path, (err) => {
+                        if (err) {
+                        console.error(err)
+                        return res.status(400).send(err);
+                        }
+                    })
+                        
+                    Movie.findByIdAndUpdate(id, {img : ''})
+                    .then( () => {
+                        console.log("image directory reset");
+                    })
+                    .catch(() => {
+                        console.log("Error is: "+err);
+                    })
+                }
                 
                
                 //image
                 const image = req.files.image;
-                const imageName = image.name;
+                const imageName = req.user._id+Date.now()+image.name;
                 imageDirectory = '/public/'+imageName;
                 image.mv('.'+imageDirectory, (err) => {
                     if(err) return res.status(500).send(err);
@@ -107,7 +117,9 @@ router.put('/update/:id', verify, async (req, res) => {
             const updates = Object.assign(req.body, {img: imageDirectory});
             const option = { new: true};
             const updatedMovie = await Movie.findByIdAndUpdate(id, updates, option);
-            res.send(updatedMovie);
+            console.log(updatedMovie);
+            // res.status(200).send(updatedMovie);
+            res.status(200).send("movie succesfully updated");
         } 
         catch(err){
             console.log(err);
@@ -126,7 +138,8 @@ router.delete('/delete/:id', verify, async(req, res) => {
         fs.unlinkSync('.'+imageDirectory);
     }
     const deletedMovie = await Movie.findByIdAndDelete(id);
-       return res.status(200).send(deletedMovie)
+        console.log("Movie has been Deleted")
+       return res.status(200).send("Movie Deleted")
     }catch(err){
         return res.status(400).send("error:"+err);
     }

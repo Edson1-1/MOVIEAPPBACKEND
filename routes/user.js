@@ -35,6 +35,7 @@ router.post('/register', async(req, res) => {
 
     try{ 
         const savedUser = await user.save();
+        console.log("New user added. User is :" + savedUser.name);
         res.status(200).send({user: savedUser.id});
     }catch(err){
         res.status(400).send(err);
@@ -47,26 +48,26 @@ router.post('/login', async(req, res) => {
 
      //Validation
      const {error} = loginValidation(req.body);
-     if(error) return res.status(400).send(error.details[0].message);
+     if(error) {
+         console.log(error.details[0].message);
+         return res.status(400).send(error.details[0].message);}
 
      const user = await User.findOne({ email: req.body.email});
-     if(!user) return res.status(400).send("Email or Password is wrong!");
+     if(!user) {
+        console.log("email is wrong");
+         return res.status(400).send("Email or Password is wrong!");}
 
      //CorrectPassword
      validPassword = await bcrypt.compare(req.body.password, user.password)
-     if(!validPassword) return res.status(400).send("Email or Password is wrong!");
+     if(!validPassword) {
+        console.log("password is wrong");
+        return res.status(400).send("Email or Password is wrong!");}
         
      
      //create and send token
      const token = jwt.sign({_id : user._id}, process.env.SECRET);
      res.header('auth-token', token).send(token);
 
-})
-
-//user Logout
-router.post('/logout', (req, res) => {
-    const token = "";
-    res.header('auth-token', token).send(token);
 })
 
 module.exports = router;
