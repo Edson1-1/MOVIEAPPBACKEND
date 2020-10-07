@@ -49,6 +49,13 @@ router.get('/', verify, (req, res) => {
             let userMovie=[];
             for( let i =0; i< movie.length; i++){
                 if(movie[i].owner === req.user._id){
+                    if(!fs.existsSync('.'+movie[i].img)){
+                        movie[i].img = '/public/defaultimage.jpg'
+                        console.log("in If ", movie[i].img)
+                        Movie.findById(movie[i]._id, {img: '/public/defaultimage.jpg'}, {new :true}).then(movie => {
+                            console.log("in updateById", movie._id)
+                        }).catch(err => { console.log(err)})
+                    }
                     userMovie.push(movie[i]);
                 }
             }
@@ -81,7 +88,7 @@ router.put('/update/:id', verify, async (req, res) => {
             let imageDirectory;
             if(req.files){
                 const movie = await Movie.findById(id);
-                if(movie.img !== ''){
+                if(movie.img !== '' && movie.img !== '/public/defaultimage.jpg'){
                     const path = '.'+movie.img;
                     fs.unlink(path, (err) => {
                         if (err) {
@@ -133,8 +140,9 @@ router.delete('/delete/:id', verify, async(req, res) => {
     try{
     const movie = await Movie.findById(id);
     const imageDirectory = movie.img;
-    if(imageDirectory !== ''){
-        fs.unlinkSync('.'+imageDirectory);
+    if(imageDirectory !== '' && imageDirectory !== '/public/defaultimage.jpg'){
+        if(fs.existsSync('.'+imageDirectory)){
+        fs.unlinkSync('.'+imageDirectory);}
     }
     const deletedMovie = await Movie.findByIdAndDelete(id);
         console.log("Movie has been Deleted")

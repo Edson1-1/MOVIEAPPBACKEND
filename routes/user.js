@@ -12,12 +12,13 @@ router.post('/register', async(req, res) => {
     //Validation
     const {error} = registerValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-
+    
+    const UsernameExists = await User.findOne({name : req.body.name});
+    if(UsernameExists) return res.status(400).send("Username already exists")
+    
     const emailExists = await User.findOne({ email: req.body.email});
     if(emailExists) return res.status(400).send("Email already exists");
 
-    const UsernameExists = await User.findOne({name : req.body.name});
-    if(UsernameExists) return res.status(400).send("Username already exists")
     
     // hashingPassword
     const saltRounds = await bcrypt.genSalt(parseInt(process.env.SALT, 10 ));
